@@ -1,23 +1,30 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import logo from "./logo.svg";
+import "./App.css";
 
 function App() {
+  const [result, setResult] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fn = () => {
+    setResult("");
+    setIsLoading(true);
+
+    const worker = new Worker(new URL("./worker.ts", import.meta.url));
+    worker.postMessage(null);
+
+    worker.onmessage = function (e) {
+      setIsLoading(false);
+      setResult(e.data);
+    };
+  };
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        {result}
+        {isLoading && <img src={logo} className="App-logo" alt="logo" />}
+        <button onClick={fn}>Start</button>
       </header>
     </div>
   );
